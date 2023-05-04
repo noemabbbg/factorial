@@ -42,7 +42,7 @@ class FactorialRequest(models.Model):
 
 
 class Calculation(models.Model):
-    user_id = models.ForeignKey(Users, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Users, on_delete=models.CASCADE, null= True)
     number = models.IntegerField(default=0)
     a = models.IntegerField(default=0)
     b = models.IntegerField(default=0)

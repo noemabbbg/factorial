@@ -73,23 +73,33 @@ async def send_to_kafka(data):
     producer.close()
 
 # Вьюшка для обработки запросов и вычисления факториала числа или НОД
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
+@login_required
 def calculate(request):
     if request.method == 'POST':
-        # Получаем число из тела запроса
+        # Получаем данные из тела запроса
         data = json.loads(request.body.decode('utf-8'))
         number = int(data['number'])
+        user_id = request.user.id
+        
         # Вычисляем факториал числа
         result = calculate_factorial(number)
+        
         # Сохраняем результат в базе данных
-        calculation = Calculation(number=number, result=result)
+        calculation = Calculation(user_id=user_id, number=number, result=result)
         calculation.save()
+        
         # Отправляем число в Kafka
         asyncio.run(send_to_kafka(data))
+        
         # Возвращаем результат в формате JSON
         return JsonResponse({'result': result})
     else:
         return JsonResponse({'error': 'Invalid request method'})
+
     
 
 
