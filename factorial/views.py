@@ -1,3 +1,5 @@
+
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from kafka import KafkaProducer
@@ -14,6 +16,8 @@ from .models import Calculation, Users, History
 from rest_framework import viewsets, status
 from .serializers import UserSerializer, HistorySerializer
 from rest_framework.views import APIView, Response
+
+
 KAFKA_TOPIC = 'factorial'
 KAFKA_SERVERS = ['localhost:9092']
 
@@ -77,32 +81,33 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
-@login_required
 def calculate(request):
     if request.method == 'POST':
+        print('fs1111')
         # Получаем данные из тела запроса
         data = json.loads(request.body.decode('utf-8'))
-        number = int(data['number'])
+        print(data)
+        number = int(data['par_1'])
         user_id = request.user.id
         
         # Вычисляем факториал числа
-        result = calculate_factorial(number)
         
         # Сохраняем результат в базе данных
-        calculation = Calculation(user_id=user_id, number=number, result=result)
+        calculation = Calculation(user_id=user_id, par_1=number, result=0)
         calculation.save()
-        
+        print('31111')
         # Отправляем число в Kafka
-        asyncio.run(send_to_kafka(data))
-        
+        result =calc.run()
+        print('41111')
+        print(result)
         # Возвращаем результат в формате JSON
-        return JsonResponse({'result': result})
+        return JsonResponse({'result': result.factorial_result})
     else:
         return JsonResponse({'error': 'Invalid request method'})
 
     
-
-
+    
+from calcs import calc
 # Вьюшка для вычисления НОД
 # Вьюшка для вычисления НОД
 @csrf_exempt
@@ -110,19 +115,25 @@ def calculate_gcd(request):
     if request.method == 'POST':
         # Получаем числа из тела запроса
         data = json.loads(request.body.decode('utf-8'))
-        a = int(data['a'])
-        b = int(data['b'])
-        # Вычисляем НОД
-        result = gcd_calculator(a, b)
-        # Сохраняем результат в базе данных
-        calculation = Calculation(a=a, b=b, result=result)
+        a = int(data['par_1'])
+        b = int(data['par_2'])
+        calculation = Calculation(par_1=a, par_2=b, result=0)
         calculation.save()
         # Отправляем числа в Kafka
-        asyncio.run(send_to_kafka(data))
+        result =calc.run()
+        print('21111')
+        print('result', result)
         # Возвращаем результат в формате JSON
-        return JsonResponse({'result': result})
+        return JsonResponse({'result': result.gcd_result})
     else:
         return JsonResponse({'error': 'Invalid request method'})
+
+
+
+
+
+
+
 
 from rest_framework import permissions
 class IsLoggedInUserOrAdmin(permissions.BasePermission):
@@ -226,3 +237,10 @@ class LoginView(APIView):
         }
 
         return response
+
+
+
+# views.py
+# views.py
+
+

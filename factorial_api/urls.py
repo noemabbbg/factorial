@@ -2,6 +2,7 @@ from django.urls import path
 from factorial import views
 from django.contrib import admin
 from django.urls import include, path
+from calcs import calc
 from rest_framework import routers
 from rest_framework_simplejwt.views import (
     TokenRefreshView, TokenVerifyView,

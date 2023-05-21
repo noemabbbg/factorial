@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package myservice;
+
+message Request {
+  int64 id = 1;
+  int64 par_1 = 2;
+  int64 par_2 = 3;
+}
+
+message Response {
+  int64 id = 1;
+  int64 par_1 = 2;
+  int64 par_2 = 3;
+  int64 gcd_result = 4;
+  int64 factorial_result = 5;
+}
+
+service MyService {
+  rpc ComputeGCD(Request) returns (Response) {}
+}

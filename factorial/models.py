@@ -43,15 +43,17 @@ class FactorialRequest(models.Model):
 
 class Calculation(models.Model):
     user_id = models.ForeignKey(Users, on_delete=models.CASCADE, null= True)
-    number = models.IntegerField(default=0)
-    a = models.IntegerField(default=0)
-    b = models.IntegerField(default=0)
-    result = models.IntegerField(default=0)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
+    function = models.IntegerField(default=0)
+    par_1 = models.IntegerField(default=0)
+    par_2 = models.IntegerField(default=0)
+    result = models.IntegerField(default=0) 
+    status = models.CharField(max_length=100)
+    calc_date = models.DateTimeField(auto_now_add=True)
+    exec_time = models.DateTimeField(auto_now_add=True)
+    '''
     def __str__(self):
         return f"Calculation {self.id} -  number: {self.number}, a: {self.a}, b: {self.b}, Result: {self.result}, Timestamp: {self.timestamp}"
-
+    '''
 
 
 
@@ -65,3 +67,5 @@ class History(models.Model):
     class Meta:
         managed = True
         db_table = 'history'
+
+
