@@ -45,7 +45,8 @@ class UserSerializer(serializers.ModelSerializer):
 class HistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = History
-        fields = ['pk', 'user_id', 'calculation_id', 'add_date']
+        fields = ['id', 'calculation', 'user', 'add_date', 'calculation_result']
+
 
 
 class CalculationSerializer(serializers.ModelSerializer):

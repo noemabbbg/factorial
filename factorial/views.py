@@ -83,29 +83,41 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def calculate(request):
     if request.method == 'POST':
-        print('fs1111')
-        # Получаем данные из тела запроса
         data = json.loads(request.body.decode('utf-8'))
-        print(data)
         number = int(data['par_1'])
-        user_id = request.user.id
-        
-        # Вычисляем факториал числа
-        
-        # Сохраняем результат в базе данных
-        calculation = Calculation(user_id=user_id, par_1=number, result=0)
+        user_id = "1"
+        user = Users.objects.get(id=user_id)
+
+        calculation = Calculation(user_id=user, par_1=number, result=0)
         calculation.save()
-        print('31111')
-        # Отправляем число в Kafka
-        result =calc.run()
-        print('41111')
-        print(result)
-        # Возвращаем результат в формате JSON
+
+        result = calc.run() 
+
+        calculation.result = result.factorial_result
+        calculation.save()
+
+        # Запись в историю
+        history = History(calculation=calculation, user_id=user_id, calculation_result=result.factorial_result)
+        history.save()
+
         return JsonResponse({'result': result.factorial_result})
     else:
         return JsonResponse({'error': 'Invalid request method'})
 
+
     
+@csrf_exempt
+def delete_calculation(request, id):
+    if request.method == 'DELETE':
+        try:
+            calculation = Calculation.objects.get(pk=id)
+            calculation.delete()
+            return JsonResponse({'message': 'Calculation deleted successfully'})
+        except Calculation.DoesNotExist:
+            return JsonResponse({'error': 'Calculation not found'}, status=404)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
     
 from calcs import calc
 # Вьюшка для вычисления НОД
@@ -124,6 +136,8 @@ def calculate_gcd(request):
         print('21111')
         print('result', result)
         # Возвращаем результат в формате JSON
+        calculation = Calculation(par_1=a, par_2=b, result=result.gcd_result)
+        calculation.save()
         return JsonResponse({'result': result.gcd_result})
     else:
         return JsonResponse({'error': 'Invalid request method'})
@@ -161,30 +175,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 
-class HistoryViewSet(viewsets.ModelViewSet):
-    queryset = Calculation.objects.all().order_by('pk')
-    serializer_class = HistorySerializer
+class HistoryView(APIView):
+    permission_classes = (IsAuthenticated, )
+
     def get(self, request):
-        serializer = HistorySerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        histories = History.objects.filter(user=request.user)
+        serializer = HistorySerializer(histories, many=True)
         return Response(serializer.data)
 
 
-'''
-def history(request):
-    calculations = Calculation.objects.all().order_by('pk')
-    print(calculations)
-    data = []
-    for calc in calculations:
-        data.append({
-            'number': calc.number,
-            'result': calc.result,
-            
-        })
-    return JsonResponse(data, safe=False)
 
-'''
 
 
 
