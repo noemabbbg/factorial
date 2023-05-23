@@ -208,6 +208,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 class LoginView(APIView):
+    #authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         login = request.data['login']
         password = request.data['password']
